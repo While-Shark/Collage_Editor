@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --font-headline: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-label: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: #6b34d8;
+  --color-primary-dim: #5e23cb;
+  --color-primary-container: #ae8dff;
+  --color-on-primary: #f8f0ff;
+  
+  --color-secondary: #7443a8;
+  --color-secondary-container: #e4c6ff;
+  
+  --color-background: #fdf3ff;
+  --color-on-background: #39264c;
+  
+  --color-surface: #fdf3ff;
+  --color-on-surface: #39264c;
+  --color-on-surface-variant: #67537c;
+  
+  --color-surface-container: #f3e2ff;
+  --color-surface-container-low: #f9ecff;
+  --color-surface-container-high: #f0dbff;
+  --color-surface-container-highest: #ecd4ff;
+  --color-surface-container-lowest: #ffffff;
+  
+  --color-outline: #846e99;
+  --color-outline-variant: #bca4d2;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-background font-body;
+  }
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
