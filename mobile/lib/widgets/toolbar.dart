@@ -27,14 +27,15 @@ class _ToolbarState extends State<Toolbar> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildSubTabs(),
+          _buildSubTabs(), // 子标签切换栏
           const SizedBox(height: 24),
-          _buildActivePanel(),
+          _buildActivePanel(), // 当前选中的编辑面板
         ],
       ),
     );
   }
 
+  /// 构建子标签切换栏 (布局、滤镜、贴纸、背景)
   Widget _buildSubTabs() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -54,6 +55,7 @@ class _ToolbarState extends State<Toolbar> {
     );
   }
 
+  /// 构建子标签项
   Widget _buildSubTabItem(int index, IconData icon, String label) {
     final isSelected = _activeSubTab == index;
     return Expanded(
@@ -97,6 +99,7 @@ class _ToolbarState extends State<Toolbar> {
     );
   }
 
+  /// 根据当前选中的子标签返回对应的面板
   Widget _buildActivePanel() {
     switch (_activeSubTab) {
       case 0: return _buildLayoutStylePanel();
@@ -107,6 +110,7 @@ class _ToolbarState extends State<Toolbar> {
     }
   }
 
+  /// 构建布局样式面板 (边框、圆角、间距)
   Widget _buildLayoutStylePanel() {
     final state = context.watch<CollageProvider>().state;
     return Padding(
@@ -121,6 +125,7 @@ class _ToolbarState extends State<Toolbar> {
     );
   }
 
+  /// 构建样式滑块
   Widget _buildStyleSlider(String label, double value, double min, double max, Function(double) onChanged) {
     return Row(
       children: [
@@ -145,12 +150,14 @@ class _ToolbarState extends State<Toolbar> {
     );
   }
 
+  /// 构建滤镜面板
   Widget _buildFilterPanel() {
     final provider = context.watch<CollageProvider>();
     final selectedIndex = provider.state.selectedIndex;
     final selectedImage = selectedIndex != null ? provider.state.images[selectedIndex] : null;
     final filters_state = selectedImage?.filters ?? {};
 
+    // 预设滤镜列表
     final filters = [
       {'name': '原图', 'values': {'brightness': 1.0, 'contrast': 1.0, 'saturation': 1.0, 'grayscale': 0.0, 'sepia': 0.0}},
       {'name': '鲜艳', 'values': {'saturation': 1.5, 'contrast': 1.1}},
@@ -173,7 +180,13 @@ class _ToolbarState extends State<Toolbar> {
               if (selectedIndex != null)
                 TextButton.icon(
                   onPressed: () {
-                    // This will be handled in the filter selection logic
+                    // 应用当前选中的滤镜到所有图片
+                    if (selectedImage != null) {
+                      provider.applyFiltersToAll(selectedImage.filters);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('已应用到所有图片')),
+                      );
+                    }
                   },
                   icon: const Icon(Icons.done_all, size: 16, color: Color(0xFF7C4DFF)),
                   label: const Text(
@@ -198,12 +211,14 @@ class _ToolbarState extends State<Toolbar> {
                   children: [
                     GestureDetector(
                       onLongPress: () {
+                        // 长按应用到所有
                         provider.applyFiltersToAll(filter['values'] as Map<String, double>);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('已应用到所有图片')),
                         );
                       },
                       onTap: () {
+                        // 点击应用到单张
                         if (selectedIndex != null) {
                           provider.updateImageFilters(selectedIndex, filter['values'] as Map<String, double>);
                         }
@@ -272,6 +287,7 @@ class _ToolbarState extends State<Toolbar> {
     );
   }
 
+  /// 构建贴纸面板
   Widget _buildStickerPanel() {
     final stickers = ['😀', '❤️', '✨', '🔥', '🌈', '🌸', '🐱', '🍕'];
     return SizedBox(
@@ -299,6 +315,7 @@ class _ToolbarState extends State<Toolbar> {
     );
   }
 
+  /// 构建背景面板
   Widget _buildBackgroundPanel() {
     final colors = [Colors.white, Colors.black, Colors.purple[100]!, Colors.blue[100]!, Colors.pink[100]!, Colors.orange[100]!];
     return SizedBox(

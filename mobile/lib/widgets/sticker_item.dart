@@ -15,6 +15,7 @@ class StickerItem extends StatelessWidget {
       top: sticker.position.dy,
       child: GestureDetector(
         onScaleUpdate: (details) {
+          // 处理贴纸的手势变换：移动、缩放、旋转
           final provider = context.read<CollageProvider>();
           provider.updateSticker(
             sticker.id,

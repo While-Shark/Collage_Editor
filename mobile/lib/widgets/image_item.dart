@@ -35,7 +35,7 @@ class _ImageItemState extends State<ImageItem> {
         onTap: _pickImage,
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFE1D5FF), // Light lavender background
+            color: const Color(0xFFE1D5FF), // 浅紫色背景
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -44,14 +44,14 @@ class _ImageItemState extends State<ImageItem> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF7C4DFF), // Deep lavender icon background
+                  color: Color(0xFF7C4DFF), // 深紫色图标背景
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.add, color: Colors.white, size: 24),
               ),
               const SizedBox(height: 8),
               const Text(
-                'Upload',
+                '上传图片',
                 style: TextStyle(
                   color: Color(0xFF7C4DFF),
                   fontWeight: FontWeight.w600,
@@ -114,6 +114,7 @@ class _ImageItemState extends State<ImageItem> {
                 ),
               ),
               if (isSelected) ...[
+                // 删除按钮
                 Positioned(
                   top: 8,
                   right: 8,
@@ -129,6 +130,7 @@ class _ImageItemState extends State<ImageItem> {
                     ),
                   ),
                 ),
+                // 刷新/替换按钮
                 Positioned(
                   bottom: 8,
                   right: 8,
@@ -152,6 +154,7 @@ class _ImageItemState extends State<ImageItem> {
     );
   }
 
+  /// 根据滤镜参数生成颜色矩阵
   ColorFilter _getColorFilter(Map<String, double> filters) {
     final brightness = filters['brightness'] ?? 1.0;
     final contrast = filters['contrast'] ?? 1.0;
@@ -159,9 +162,9 @@ class _ImageItemState extends State<ImageItem> {
     final grayscale = filters['grayscale'] ?? 0.0;
     final sepia = filters['sepia'] ?? 0.0;
 
-    // This is a simplified matrix approach. For full control, 
-    // multiple matrices should be concatenated.
-    // Brightness/Contrast matrix
+    // 这是一个简化的矩阵处理方法。为了获得完全控制，
+    // 应该将多个矩阵连接起来。
+    // 亮度/对比度矩阵
     double t = (1.0 - contrast) / 2.0;
     List<double> matrix = [
       contrast * brightness, 0, 0, 0, t * 255,
@@ -170,7 +173,7 @@ class _ImageItemState extends State<ImageItem> {
       0, 0, 0, 1, 0,
     ];
 
-    // Grayscale
+    // 灰度矩阵
     if (grayscale > 0) {
       final g = grayscale;
       final invG = 1.0 - g;
@@ -187,7 +190,7 @@ class _ImageItemState extends State<ImageItem> {
       matrix = _multiplyMatrices(matrix, grayMatrix);
     }
 
-    // Sepia
+    // 棕褐色矩阵
     if (sepia > 0) {
       final s = sepia;
       final invS = 1.0 - s;
@@ -203,6 +206,7 @@ class _ImageItemState extends State<ImageItem> {
     return ColorFilter.matrix(matrix);
   }
 
+  /// 矩阵乘法，用于组合多个滤镜效果
   List<double> _multiplyMatrices(List<double> m1, List<double> m2) {
     List<double> result = List.filled(20, 0.0);
     for (int i = 0; i < 4; i++) {

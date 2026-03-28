@@ -7,6 +7,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
+        // 提供全局拼图状态管理
         ChangeNotifierProvider(create: (_) => CollageProvider()),
       ],
       child: const CollageApp(),
@@ -20,12 +21,12 @@ class CollageApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Collage Editor',
+      title: '拼图编辑器',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF7C4DFF),
+          seedColor: const Color(0xFF7C4DFF), // 品牌紫色
           primary: const Color(0xFF7C4DFF),
           secondary: const Color(0xFFE1D5FF),
           surface: const Color(0xFFF8F7FF),
@@ -42,6 +43,7 @@ class CollageApp extends StatelessWidget {
           ),
           iconTheme: IconThemeData(color: Color(0xFF1A1A1A)),
         ),
+        // 自定义滑块样式
         sliderTheme: SliderThemeData(
           activeTrackColor: const Color(0xFF7C4DFF),
           inactiveTrackColor: const Color(0xFFE1D5FF),

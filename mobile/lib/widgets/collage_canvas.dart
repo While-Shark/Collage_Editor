@@ -18,11 +18,11 @@ class CollageCanvas extends StatelessWidget {
           onTap: () => context.read<CollageProvider>().setSelectedIndex(null),
           child: Stack(
             children: [
-              // Background
+              // 背景层
               _buildBackground(state.background),
-              // Layout Grid
+              // 布局网格层
               _buildLayout(state, constraints.maxWidth, constraints.maxHeight),
-              // Stickers
+              // 贴纸层
               ...state.stickers.map((s) => StickerItem(sticker: s)),
             ],
           ),
@@ -64,7 +64,7 @@ class CollageCanvas extends StatelessWidget {
         final totalW = constraints.maxWidth;
         final totalH = constraints.maxHeight;
 
-        // Apply outer border (padding)
+        // 应用外边框（内边距）
         final canvasRect = Rect.fromLTWH(
           state.borderWidth,
           state.borderWidth,

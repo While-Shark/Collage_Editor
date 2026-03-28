@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
+/// 背景类型：纯色、渐变、图案、图片
 enum BackgroundType { color, gradient, pattern, image }
 
+/// 拼图中的单张图片模型
 class CollageImage {
   final String id;
-  final String url;
-  final Offset position;
-  final double scale;
-  final double rotation;
-  final Map<String, double> filters;
+  final String url; // 图片路径或网络地址
+  final Offset position; // 图片偏移位置
+  final double scale; // 缩放比例
+  final double rotation; // 旋转角度
+  final Map<String, double> filters; // 滤镜参数 (亮度、对比度等)
 
   CollageImage({
     required this.id,
@@ -43,10 +45,11 @@ class CollageImage {
   }
 }
 
+/// 贴纸模型
 class Sticker {
   final String id;
-  final String type; // 'emoji' or 'image'
-  final String content;
+  final String type; // 'emoji' (表情) 或 'image' (图片贴纸)
+  final String content; // 表情文本或图片地址
   final Offset position;
   final double scale;
   final double rotation;
@@ -76,9 +79,10 @@ class Sticker {
   }
 }
 
+/// 拼图背景模型
 class CollageBackground {
   final BackgroundType type;
-  final dynamic value; // Color, List<Color>, String (pattern/image)
+  final dynamic value; // 可以是 Color, List<Color>, 或 String (图案/图片地址)
 
   CollageBackground({
     this.type = BackgroundType.color,

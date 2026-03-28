@@ -16,9 +16,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 1; // Default to Preview
-  final ScreenshotController _screenshotController = ScreenshotController();
+  int _currentIndex = 1; // 默认显示“预览”频道
+  final ScreenshotController _screenshotController = ScreenshotController(); // 用于截取拼图画布
 
+  /// 保存并分享拼图
+  /// [isShare] 为 true 时调用系统分享，为 false 时仅保存到本地
   Future<void> _saveAndShare(bool isShare) async {
     try {
       final image = await _screenshotController.capture();
@@ -29,10 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
       await imagePath.writeAsBytes(image);
 
       if (isShare) {
-        await Share.shareXFiles([XFile(imagePath.path)], text: 'Check out my collage!');
+        await Share.shareXFiles([XFile(imagePath.path)], text: '看看我的拼图作品！');
       } else {
-        // In a real mobile app, we'd save to gallery. 
-        // For now, we'll just show a success message.
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('拼图已保存至: ${imagePath.path}')),
@@ -63,30 +63,36 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.save_alt_outlined),
+            tooltip: '保存',
             onPressed: () => _saveAndShare(false),
           ),
           IconButton(
             icon: const Icon(Icons.share_outlined),
+            tooltip: '分享',
             onPressed: () => _saveAndShare(true),
           ),
         ],
       ),
       body: Stack(
         children: [
-          IndexedStack(
-            index: _currentIndex,
-            children: [
-              const LayoutTabView(),
-              PreviewTabView(controller: _screenshotController),
-              EditTabView(controller: _screenshotController),
-            ],
+          // 使用 Positioned.fill 确保内容填充整个屏幕，防止布局卡死
+          Positioned.fill(
+            child: IndexedStack(
+              index: _currentIndex,
+              children: [
+                const LayoutTabView(),
+                PreviewTabView(controller: _screenshotController),
+                EditTabView(controller: _screenshotController),
+              ],
+            ),
           ),
-          _buildBottomNav(),
+          _buildBottomNav(), // 悬浮底部导航栏
         ],
       ),
     );
   }
 
+  /// 获取当前频道的标题
   String _getTitle() {
     switch (_currentIndex) {
       case 0: return '布局选择';
@@ -96,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  /// 构建悬浮底部导航栏
   Widget _buildBottomNav() {
     return Align(
       alignment: Alignment.bottomCenter,
@@ -125,6 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// 构建导航项
   Widget _buildNavItem(int index, IconData icon, String label) {
     final isSelected = _currentIndex == index;
     return GestureDetector(
@@ -146,6 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+/// 布局选择频道
 class LayoutTabView extends StatelessWidget {
   const LayoutTabView({super.key});
 
@@ -154,6 +163,7 @@ class LayoutTabView extends StatelessWidget {
     final provider = context.watch<CollageProvider>();
     final currentLayout = provider.state.layout;
 
+    // 预设布局列表
     final layouts = [
       {'id': 1, 'name': '单图布局', 'desc': '最适合展示焦点图片'},
       {'id': 2, 'name': '双图并列', 'desc': '对比与叙事的经典选择'},
@@ -249,6 +259,7 @@ class LayoutTabView extends StatelessWidget {
     );
   }
 
+  /// 构建布局预览图
   Widget _buildLayoutPreview(int layout) {
     return AspectRatio(
       aspectRatio: 1.5,
@@ -264,13 +275,13 @@ class LayoutTabView extends StatelessWidget {
   }
 }
 
+/// 迷你拼图预览组件
 class _MiniCollagePreview extends StatelessWidget {
   final int layout;
   const _MiniCollagePreview({required this.layout});
 
   @override
   Widget build(BuildContext context) {
-    // Simplified version of the layout logic for preview
     return LayoutBuilder(builder: (context, constraints) {
       final w = constraints.maxWidth;
       final h = constraints.maxHeight;
@@ -344,9 +355,11 @@ class _MiniCollagePreview extends StatelessWidget {
   }
 }
 
+/// 拼图预览频道
 class PreviewTabView extends StatelessWidget {
   final ScreenshotController controller;
   const PreviewTabView({super.key, required this.controller});
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -378,21 +391,24 @@ class PreviewTabView extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 100), // Space for bottom nav
+        const SizedBox(height: 100), // 为底部导航栏留出空间
       ],
     );
   }
 }
 
+/// 拼图编辑频道
 class EditTabView extends StatelessWidget {
   final ScreenshotController controller;
   const EditTabView({super.key, required this.controller});
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CollageProvider>();
 
     return Column(
       children: [
+        // 顶部操作栏：撤销、重做、重置
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: Row(
@@ -428,6 +444,7 @@ class EditTabView extends StatelessWidget {
             ],
           ),
         ),
+        // 中部画布区域
         Expanded(
           child: Center(
             child: AspectRatio(
@@ -442,12 +459,13 @@ class EditTabView extends StatelessWidget {
             ),
           ),
         ),
-        const Toolbar(),
+        const Toolbar(), // 底部编辑工具栏
         const SizedBox(height: 100),
       ],
     );
   }
 
+  /// 构建操作按钮（撤销/重做）
   Widget _buildActionButton({
     required IconData icon,
     required VoidCallback? onPressed,
