@@ -53,9 +53,21 @@ class CollageProvider with ChangeNotifier {
   final List<CollageState> _redoStack = [];
 
   CollageState get state => _state;
+  bool get canUndo => _undoStack.isNotEmpty;
+  bool get canRedo => _redoStack.isNotEmpty;
 
   void setSelectedIndex(int? index) {
     _state = _state.copyWith(selectedIndex: index, clearSelection: index == null);
+    notifyListeners();
+  }
+
+  void resetStyles() {
+    _pushToUndo();
+    _state = _state.copyWith(
+      borderWidth: 12.0,
+      cornerRadius: 24.0,
+      spacing: 16.0,
+    );
     notifyListeners();
   }
 

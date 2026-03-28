@@ -21,9 +21,33 @@ class CollageApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Collage Editor',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF7C4DFF),
+          primary: const Color(0xFF7C4DFF),
+          secondary: const Color(0xFFE1D5FF),
+          surface: const Color(0xFFF8F7FF),
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF8F7FF),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: false,
+          titleTextStyle: TextStyle(
+            color: Color(0xFF1A1A1A),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          iconTheme: IconThemeData(color: Color(0xFF1A1A1A)),
+        ),
+        sliderTheme: SliderThemeData(
+          activeTrackColor: const Color(0xFF7C4DFF),
+          inactiveTrackColor: const Color(0xFFE1D5FF),
+          thumbColor: const Color(0xFF7C4DFF),
+          overlayColor: const Color(0xFF7C4DFF).withOpacity(0.2),
+        ),
       ),
       home: const HomeScreen(),
     );

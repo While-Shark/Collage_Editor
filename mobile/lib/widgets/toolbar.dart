@@ -3,93 +3,129 @@ import 'package:provider/provider.dart';
 import '../providers/collage_provider.dart';
 import '../models/collage_state.dart';
 
-class Toolbar extends StatelessWidget {
+class Toolbar extends StatefulWidget {
   const Toolbar({super.key});
+
+  @override
+  State<Toolbar> createState() => _ToolbarState();
+}
+
+class _ToolbarState extends State<Toolbar> {
+  int _activeSubTab = 1; // Default to Filters
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 120,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: const BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 5,
-            offset: const Offset(0, -2),
-          ),
-        ],
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(32),
+          topRight: Radius.circular(32),
+        ),
       ),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          _buildToolSection(
-            title: 'Layout',
-            children: [
-              _buildLayoutButton(context, 1),
-              _buildLayoutButton(context, 2),
-              _buildLayoutButton(context, 3),
-              _buildLayoutButton(context, 4),
-              _buildLayoutButton(context, 6),
-              _buildLayoutButton(context, 9),
-            ],
-          ),
-          const VerticalDivider(),
-          _buildToolSection(
-            title: 'Styles',
-            children: [
-              _buildStyleSlider(context, 'Border', (v) => context.read<CollageProvider>().setStyle(borderWidth: v), context.watch<CollageProvider>().state.borderWidth, 0, 40),
-              _buildStyleSlider(context, 'Radius', (v) => context.read<CollageProvider>().setStyle(cornerRadius: v), context.watch<CollageProvider>().state.cornerRadius, 0, 100),
-              _buildStyleSlider(context, 'Spacing', (v) => context.read<CollageProvider>().setStyle(spacing: v), context.watch<CollageProvider>().state.spacing, 0, 40),
-            ],
-          ),
-          const VerticalDivider(),
-          _buildToolSection(
-            title: 'Filters',
-            children: [
-              _buildFilterButton(context, 'None', {}),
-              _buildFilterButton(context, 'B&W', {'grayscale': 1.0, 'contrast': 1.2}),
-              _buildFilterButton(context, 'Sepia', {'sepia': 1.0}),
-              _buildFilterButton(context, 'Vivid', {'saturation': 1.5, 'contrast': 1.1}),
-              _buildFilterButton(context, 'Dark', {'brightness': 0.7}),
-            ],
-          ),
-          const VerticalDivider(),
-          _buildToolSection(
-            title: 'Stickers',
-            children: [
-              _buildStickerButton(context, '😀'),
-              _buildStickerButton(context, '❤️'),
-              _buildStickerButton(context, '✨'),
-              _buildStickerButton(context, '🔥'),
-              _buildStickerButton(context, '🌈'),
-            ],
-          ),
-          const VerticalDivider(),
-          _buildToolSection(
-            title: 'Background',
-            children: [
-              _buildColorButton(context, Colors.white),
-              _buildColorButton(context, Colors.black),
-              _buildColorButton(context, Colors.red[100]!),
-              _buildColorButton(context, Colors.blue[100]!),
-              _buildColorButton(context, Colors.green[100]!),
-            ],
-          ),
+          _buildSubTabs(),
+          const SizedBox(height: 24),
+          _buildActivePanel(),
         ],
       ),
     );
   }
 
-  Widget _buildStyleSlider(BuildContext context, String label, Function(double) onChanged, double value, double min, double max) {
-    return Column(
+  Widget _buildSubTabs() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0E6FF),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        children: [
+          _buildSubTabItem(0, Icons.grid_view, '布局'),
+          _buildSubTabItem(1, Icons.auto_awesome, '滤镜'),
+          _buildSubTabItem(2, Icons.sticky_note_2, '贴纸'),
+          _buildSubTabItem(3, Icons.palette, '背景'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubTabItem(int index, IconData icon, String label) {
+    final isSelected = _activeSubTab == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _activeSubTab = index),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(26),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                    )
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected ? const Color(0xFF7C4DFF) : Colors.grey[600],
+              ),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? const Color(0xFF7C4DFF) : Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActivePanel() {
+    switch (_activeSubTab) {
+      case 0: return _buildLayoutStylePanel();
+      case 1: return _buildFilterPanel();
+      case 2: return _buildStickerPanel();
+      case 3: return _buildBackgroundPanel();
+      default: return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildLayoutStylePanel() {
+    final state = context.watch<CollageProvider>().state;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          _buildStyleSlider('边框', state.borderWidth, 0, 40, (v) => context.read<CollageProvider>().setStyle(borderWidth: v)),
+          _buildStyleSlider('圆角', state.cornerRadius, 0, 100, (v) => context.read<CollageProvider>().setStyle(cornerRadius: v)),
+          _buildStyleSlider('间距', state.spacing, 0, 40, (v) => context.read<CollageProvider>().setStyle(spacing: v)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStyleSlider(String label, double value, double min, double max, Function(double) onChanged) {
+    return Row(
       children: [
-        Text(label, style: const TextStyle(fontSize: 10)),
-        SizedBox(
-          width: 80,
-          height: 30,
+        SizedBox(width: 40, child: Text(label, style: const TextStyle(fontSize: 12))),
+        Expanded(
           child: Slider(
             value: value,
             min: min,
@@ -97,105 +133,159 @@ class Toolbar extends StatelessWidget {
             onChanged: onChanged,
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildFilterButton(BuildContext context, String name, Map<String, double> filters) {
-    final provider = context.read<CollageProvider>();
-    final selectedIndex = provider.state.selectedIndex;
-
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: InkWell(
-        onTap: () {
-          if (selectedIndex != null) {
-            provider.updateImageFilters(selectedIndex, filters);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Please select an image first')),
-            );
-          }
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          height: 40,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Center(child: Text(name, style: const TextStyle(fontSize: 12))),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildToolSection({required String title, required List<Widget> children}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
+        SizedBox(
+          width: 40,
           child: Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            '${(value / max * 100).toInt()}%',
+            textAlign: TextAlign.right,
+            style: const TextStyle(fontSize: 10, color: Color(0xFF7C4DFF)),
           ),
         ),
-        Row(children: children),
       ],
     );
   }
 
-  Widget _buildLayoutButton(BuildContext context, int layout) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: InkWell(
-        onTap: () => context.read<CollageProvider>().setLayout(layout),
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(4),
+  Widget _buildFilterPanel() {
+    final provider = context.watch<CollageProvider>();
+    final selectedIndex = provider.state.selectedIndex;
+    final selectedImage = selectedIndex != null ? provider.state.images[selectedIndex] : null;
+    final filters_state = selectedImage?.filters ?? {};
+
+    final filters = [
+      {'name': '原图', 'values': {'brightness': 1.0, 'contrast': 1.0, 'saturation': 1.0, 'grayscale': 0.0, 'sepia': 0.0}},
+      {'name': '鲜艳', 'values': {'saturation': 1.5, 'contrast': 1.1}},
+      {'name': '柔和', 'values': {'saturation': 0.8, 'brightness': 1.1}},
+      {'name': '胶片', 'values': {'sepia': 0.3, 'contrast': 1.2}},
+      {'name': '黑白', 'values': {'grayscale': 1.0}},
+    ];
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 90,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            itemCount: filters.length,
+            itemBuilder: (context, index) {
+              final filter = filters[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (selectedIndex != null) {
+                          provider.updateImageFilters(selectedIndex, filter['values'] as Map<String, double>);
+                        }
+                      },
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0E6FF),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFF7C4DFF).withOpacity(0.1)),
+                        ),
+                        child: const Icon(Icons.filter_hdr, color: Color(0xFF7C4DFF), size: 20),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      filter['name'] as String,
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
-          child: Center(child: Text(layout.toString())),
         ),
+        if (selectedIndex != null) ...[
+          const Divider(height: 32, indent: 24, endIndent: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                _buildStyleSlider(
+                  '亮度',
+                  filters_state['brightness'] ?? 1.0,
+                  0.5,
+                  1.5,
+                  (v) => provider.updateImageFilters(selectedIndex, {'brightness': v}),
+                ),
+                _buildStyleSlider(
+                  '对比度',
+                  filters_state['contrast'] ?? 1.0,
+                  0.5,
+                  1.5,
+                  (v) => provider.updateImageFilters(selectedIndex, {'contrast': v}),
+                ),
+              ],
+            ),
+          ),
+        ] else
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Text(
+              '选择一张图片进行调节',
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildStickerPanel() {
+    final stickers = ['😀', '❤️', '✨', '🔥', '🌈', '🌸', '🐱', '🍕'];
+    return SizedBox(
+      height: 60,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        itemCount: stickers.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () => context.read<CollageProvider>().addSticker('emoji', stickers[index]),
+            child: Container(
+              width: 50,
+              height: 50,
+              margin: const EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F7FF),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(child: Text(stickers[index], style: const TextStyle(fontSize: 24))),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildStickerButton(BuildContext context, String emoji) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: InkWell(
-        onTap: () => context.read<CollageProvider>().addSticker('emoji', emoji),
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Center(child: Text(emoji, style: const TextStyle(fontSize: 24))),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildColorButton(BuildContext context, Color color) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: InkWell(
-        onTap: () => context.read<CollageProvider>().setBackground(CollageBackground(type: BackgroundType.color, value: color)),
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: color,
-            border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
+  Widget _buildBackgroundPanel() {
+    final colors = [Colors.white, Colors.black, Colors.purple[100]!, Colors.blue[100]!, Colors.pink[100]!, Colors.orange[100]!];
+    return SizedBox(
+      height: 50,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        itemCount: colors.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () => context.read<CollageProvider>().setBackground(CollageBackground(type: BackgroundType.color, value: colors[index])),
+            child: Container(
+              width: 40,
+              height: 40,
+              margin: const EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                color: colors[index],
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

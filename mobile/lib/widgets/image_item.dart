@@ -34,8 +34,32 @@ class _ImageItemState extends State<ImageItem> {
       return GestureDetector(
         onTap: _pickImage,
         child: Container(
-          color: Colors.grey[300],
-          child: const Icon(Icons.add_a_photo, color: Colors.grey),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE1D5FF), // Light lavender background
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF7C4DFF), // Deep lavender icon background
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.add, color: Colors.white, size: 24),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Upload',
+                style: TextStyle(
+                  color: Color(0xFF7C4DFF),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
