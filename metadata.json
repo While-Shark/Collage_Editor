@@ -1,5 +1,5 @@
 {
-  "name": "The Editorial Canvas",
+  "name": "拼图编辑器",
   "description": "一个高保真社交媒体网格拼图编辑器，支持 1:1 正方形布局和高清导出。",
   "requestFramePermissions": []
 }

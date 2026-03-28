@@ -87,7 +87,15 @@ export const LayoutEngine: React.FC = () => {
   };
 
   return (
-    <div className="w-full aspect-square bg-white shadow-xl rounded-2xl overflow-hidden relative" ref={containerRef}>
+    <div 
+      className="w-full aspect-square shadow-xl rounded-2xl overflow-hidden relative" 
+      ref={containerRef}
+      style={{ 
+        background: style.background,
+        backgroundSize: style.backgroundType === 'pattern' ? '20px 20px' : 'cover',
+        backgroundPosition: 'center'
+      }}
+    >
       <input
         type="file"
         ref={fileInputRef}

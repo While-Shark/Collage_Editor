@@ -15,8 +15,92 @@ export async function exportToCanvas(
   if (!ctx) throw new Error('Could not get canvas context');
 
   // Background
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, EXPORT_SIZE, EXPORT_SIZE);
+  if (style.backgroundType === 'gradient') {
+    const colors = style.background.match(/#[a-fA-F0-9]{6}/g);
+    if (colors && colors.length >= 2) {
+      const grad = ctx.createLinearGradient(0, 0, EXPORT_SIZE, EXPORT_SIZE);
+      colors.forEach((color, index) => {
+        grad.addColorStop(index / (colors.length - 1), color);
+      });
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, EXPORT_SIZE, EXPORT_SIZE);
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, EXPORT_SIZE, EXPORT_SIZE);
+    }
+  } else if (style.backgroundType === 'pattern') {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, EXPORT_SIZE, EXPORT_SIZE);
+    
+    if (style.background.startsWith('url')) {
+      // SVG Pattern
+      const dataUri = style.background.match(/url\("?(.*?)"?\)/)?.[1];
+      if (dataUri) {
+        const patternImg = new Image();
+        await new Promise((resolve, reject) => {
+          patternImg.onload = resolve;
+          patternImg.onerror = reject;
+          patternImg.src = dataUri;
+        });
+        const pattern = ctx.createPattern(patternImg, 'repeat');
+        if (pattern) {
+          ctx.fillStyle = pattern;
+          ctx.fillRect(0, 0, EXPORT_SIZE, EXPORT_SIZE);
+        }
+      }
+    } else {
+      // CSS Gradient Pattern (Simplified for Canvas)
+      ctx.save();
+      ctx.globalAlpha = 0.1;
+      ctx.fillStyle = '#000000';
+      const gap = 60;
+      if (style.background.includes('radial-gradient')) {
+        for (let x = 0; x < EXPORT_SIZE; x += gap) {
+          for (let y = 0; y < EXPORT_SIZE; y += gap) {
+            ctx.beginPath();
+            ctx.arc(x, y, 4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      } else if (style.background.includes('linear-gradient')) {
+        ctx.lineWidth = 2;
+        for (let i = 0; i < EXPORT_SIZE * 2; i += gap) {
+          ctx.beginPath();
+          ctx.moveTo(i, 0);
+          ctx.lineTo(0, i);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+  } else if (style.backgroundType === 'image' && style.backgroundImage) {
+    const bgImg = new Image();
+    bgImg.crossOrigin = 'anonymous';
+    await new Promise((resolve, reject) => {
+      bgImg.onload = resolve;
+      bgImg.onerror = reject;
+      bgImg.src = style.backgroundImage!;
+    });
+    
+    const imgAspect = bgImg.width / bgImg.height;
+    const targetAspect = 1; // Square
+    let drawW, drawH, drawX, drawY;
+    if (imgAspect > targetAspect) {
+      drawH = EXPORT_SIZE;
+      drawW = EXPORT_SIZE * imgAspect;
+      drawX = -(drawW - EXPORT_SIZE) / 2;
+      drawY = 0;
+    } else {
+      drawW = EXPORT_SIZE;
+      drawH = EXPORT_SIZE / imgAspect;
+      drawX = 0;
+      drawY = -(drawH - EXPORT_SIZE) / 2;
+    }
+    ctx.drawImage(bgImg, drawX, drawY, drawW, drawH);
+  } else {
+    ctx.fillStyle = style.background;
+    ctx.fillRect(0, 0, EXPORT_SIZE, EXPORT_SIZE);
+  }
 
   const scale = EXPORT_SIZE / 400; // Assuming 400px is our base UI size for calculations
   const spacing = style.spacing * scale;

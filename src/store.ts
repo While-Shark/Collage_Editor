@@ -14,6 +14,9 @@ export interface LayoutStyle {
   sepia: number;
   hueRotate: number;
   blur: number;
+  background: string;
+  backgroundType: 'color' | 'gradient' | 'pattern' | 'image';
+  backgroundImage?: string;
 }
 
 export interface Sticker {
@@ -42,6 +45,8 @@ const DEFAULT_STYLE: LayoutStyle = {
   sepia: 0,
   hueRotate: 0,
   blur: 0,
+  background: '#ffffff',
+  backgroundType: 'color',
 };
 
 interface AppState {
